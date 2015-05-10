@@ -1,0 +1,101 @@
+<div class="modal-header">
+    <button type="button" class="close" ng-click="close()">
+        <span aria-hidden="true">&times;</span>
+    </button>
+    <h4 class="modal-title">Manage Reservation</h4>
+</div>
+<form class="form" ng-submit="save()">
+    <div class="modal-body">
+        <div>
+            <div class="form-group">
+                <label class="control-label">Name *</label>
+
+                <div class="input-group">
+                    <input required type="text" class="form-control" name="name" ng-model="r.name"></input>
+                              <span class="input-group-btn">
+                                   <span class="btn" ng-class="r.arrived ? 'btn-danger' : 'btn-success'"
+                                         ng-click="toggleArrived()">
+                                         <any ng-show="r.arrived == false">
+                                             <i class="glyphicon glyphicon-ok"></i> Mark arrived
+                                         </any>
+                                         <any ng-hide="r.arrived == false">
+                                             <i class="glyphicon glyphicon-remove"></i> Mark unarrived
+                                         </any>
+                                     </span>
+                              </span>
+
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-6">
+                    <div class="form-group">
+                        <label class="control-label">Date *</label>
+                        <input required="required" type="date" class="form-control" ng-model="r.date"/>
+                    </div>
+                </div>
+                <div class="col-xs-6">
+                    <div class="form-group">
+                        <label class="control-label">People *</label>
+                        <select ng-init="r.people = r.people || 2" class="form-control" ng-options="n for n in []|range:1:16" ng-model="r.people"/>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label">Time from *</label>
+                        <select class="form-control"
+                                ng-options="t.time|date:'HH:mm' as t.time|date:'HH:mm' group by t.shift for t in timetable"
+                                ng-model="r.time_from">
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label">Time to</label>
+                        <select class="form-control"
+                                ng-options="t.time|date:'HH:mm' as t.time|date:'HH:mm' group by t.shift for t in timetable"
+                                ng-model="r.time_to"/>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div style="min-height:40px;height:40px;" class="col-xs-12" ng-class="{'arr':r.arrived}">
+                    <time-table taken_from="{{r.time_from}}" taken_to="{{r.time_to}}"></time-table>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label">Telefoon</label>
+                        <input class="form-control" type="text" ng-model="r.tel"></input>
+                    </div>
+                </div>
+                <div class="col-xs-12 col-sm-6">
+                    <div class="form-group">
+                        <label class="control-label">Email</label>
+                        <input type="text" class="form-control" name="name" ng-model="r.email"></input>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-9">
+                    <div class="form-group">
+                        <label>Note</label>
+                        <textarea class="form-control" cols="12" rows="3" ng-model="r.note"></textarea>
+                    </div>
+                </div>
+                <div class="col-xs-3">
+                    <div class="form-group">
+                        <label class="control-label">Table</label>
+                        <input type="text" class="form-control" name="name" ng-model="r.table"></input>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="submit" class="btn btn-primary">Save changes</button>
+        <button type="button" class="btn btn-default pull-left" ng-click="close()">Close</button>
+    </div>
+</form>

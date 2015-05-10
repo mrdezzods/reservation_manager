@@ -1,0 +1,179 @@
+<!doctype html>
+<html class="no-js" lang="en" ng-app="reservation">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <!-- Place favicon.ico in the root directory -->
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/main.css">
+    <script src="js/vendor/modernizr-2.8.3.min.js"></script>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <script src="js/vendor/jquery-1.11.3.min.js"></script>
+    <script src="js/angular.min.js"></script>
+    <script src="js/ng-bootModal.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/system.js"></script>
+    <style>
+        .timeBox {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background: slategray;
+            margin: 0.1%;
+            padding: 0;
+        }
+
+        .taken {
+            background: limegreen !important;
+        }
+
+        .timeSeperater {
+            width: 1px;
+            height: 40px;
+            border: 1px solid black;
+            position: absolute;
+            margin: 1px 0 17px;
+        }
+
+        .timeSeperater p {
+            position: absolute;
+            top: 20px;
+            font-size: 12px;
+            padding-left: 3px;
+        }
+
+        .reservationRow {
+            height: 50px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .arr .timeBox.taken {
+            background-color: orangered !important;
+        }
+
+        .reservationRow .clientName {
+            position: relative;
+        }
+
+        .reservationRow .badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+        }
+    </style>
+</head>
+
+<body style="background-color: rgba(74, 147, 73, 0.44);">
+<!--[if lt IE 8]>
+<p class="browserupgrade">You are using an
+    <strong>outdated</strong>browser. Please
+    <a href="http://browsehappy.com/">upgrade your browser</a>to improve your experience.</p>
+<![endif]-->
+<div class="container" style="width:99.5%" ng-controller="ReservationsCtrl">
+    <div class="row">
+        <div class="col-xs-12">
+            <h2>Reservations Manager</h2>
+            <p>Date today
+                <strong>{{today | date:'EEEE dd MM yyyy'}}</strong>
+            </p>
+
+            <div class="well well-sm">
+                <span style="margin-right:5px;" ng-click="load(today)" class="btn btn-default">Today</span>
+                <span style="margin-right:5px;" ng-repeat="dt in dates" ng-click="load(dt.date)" class="btn btn-info">{{dt.date|date:'EEE, dd MMM yyyy'}} &nbsp;&nbsp;<span class="badge">{{dt.count}}</span> </span>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xs-12">
+            <p>Reservations on : {{selectedDate|date:'EEEE dd MMM yyyy'}} <span ng-click="manage()" class="btn btn-success">Add reservation.</span>
+            </p>
+
+            <div class="table table-responsive">
+                <table class="table table-bordered">
+                    <tr>
+                        <th style="width:130px">Client <span ng-click="orderres('people')" class="btn btn-info btn-xs"><i class="glyphicon" ng-class="asc? 'glyphicon-sort-by-attributes-alt': 'glyphicon-sort-by-attributes' "></i> </span> </th>
+                        <th>Timetable <span ng-click="orderres('time_from')" class="btn btn-info btn-xs"><i class="glyphicon" ng-class="asc? 'glyphicon-sort-by-attributes-alt': 'glyphicon-sort-by-attributes' "></i> </span> </th>
+                        <th style="width:90px">Table <span ng-click="orderres('table')" class="btn btn-info btn-xs"><i class="glyphicon" ng-class="asc? 'glyphicon-sort-by-attributes-alt': 'glyphicon-sort-by-attributes' "></i> </span></th>
+                        <th style="width:90px;">Actions</th>
+                    </tr>
+                    <tbody>
+                    <tr ng-repeat="r in reservations" class="reservationRow" ng-class="{'arr':r.arrived}">
+                        <td class="clientName">{{r.name}}<br>
+                            {{r.time_from}}
+                            <span class="badge">{{r.people}}</span>
+                            <h6>{{r.date_from |date :'HH:mm'}}</h6>
+                        </td>
+                        <td class="timetable">
+                            <time-table taken_from="{{r.time_from}}" taken_to="{{r.time_to}}"></time-table>
+                        </td>
+                        <td>{{r.table}}</td>
+                        <td>
+                                        <span class="btn btn-warning btn-sm" ng-click='manage(r)'>
+                                            <i class="glyphicon glyphicon-pencil"></i>
+                                        </span>
+                                        <span ng-click="delete(r)" class="btn btn-danger btn-sm">
+                                            <i class="glyphicon glyphicon-trash"></i>
+                                        </span>
+                        </td>
+                    </tr>
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <th colspan="3">Total reservations: {{reservations.length}} / Total People : {{ persons() }}
+                        </th>
+                        <th>{{r.table}}</th>
+                    </tr>
+                    </tfoot>
+                </table>
+                <div ng-hide="lastEdited==null">
+                    <h4>Recently edited:</h4>
+
+                    <div class="well well-sm">
+                        Name:{{lastEdited.name}}<br>
+                        People: {{lastEdited.people}}<br>
+                        Date: {{lastEdited.date|date:"dd-MM-yy"}}<br>
+                        <span class="btn btn-warning btn-sm" ng-click='manage(lastEdited)'>
+                                            <i class="glyphicon glyphicon-pencil"></i>
+                                        </span>
+                                        <span ng-click="delete(lastEdited)" class="btn btn-danger btn-sm">
+                                            <i class="glyphicon glyphicon-trash"></i>
+                                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+</div>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/plugins.js"></script>
+<!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
+<script>
+    (function (b, o, i, l, e, r) {
+        b.GoogleAnalyticsObject = l;
+        b[l] || (b[l] =
+                function () {
+                    (b[l].q = b[l].q || []).push(arguments)
+                });
+        b[l].l = +new Date;
+        e = o.createElement(i);
+        r = o.getElementsByTagName(i)[0];
+        e.src = 'https://www.google-analytics.com/analytics.js';
+        r.parentNode.insertBefore(e, r)
+    }(window, document, 'script', 'ga'));
+    ga('create', 'UA-XXXXX-X', 'auto');
+    ga('send', 'pageview');
+</script>
+</body>
+
+</html>
